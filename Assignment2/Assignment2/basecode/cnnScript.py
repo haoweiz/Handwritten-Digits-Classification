@@ -1,5 +1,5 @@
 # matplotlib inline
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import confusion_matrix
@@ -255,7 +255,7 @@ def optimize(num_iterations):
 # Split the test-set into smaller batches of this size.
 test_batch_size = 256
 
-def plot_images(images, cls_true, cls_pred=None):
+"""def plot_images(images, cls_true, cls_pred=None):
     assert len(images) == len(cls_true) == 9
     
     # Create figure with 3x3 sub-plots.
@@ -339,7 +339,7 @@ def plot_confusion_matrix(cls_pred):
 
     # Ensure the plot is shown correctly with multiple plots
     # in a single Notebook cell.
-    plt.show()
+    plt.show()"""
 
 def print_test_accuracy(show_example_errors=False,
                         show_confusion_matrix=False):

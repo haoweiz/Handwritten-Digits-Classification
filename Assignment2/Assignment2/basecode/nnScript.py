@@ -1,8 +1,10 @@
 import numpy as np
+import pickle
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import sqrt
 
+data = {}
 
 def initializeWeights(n_in, n_out):
     """
@@ -126,6 +128,7 @@ def preprocess():
 
     # Feature selection
     # Your code here.
+    index = []
     feature_number = train_data.shape[1]
     new_train_data = np.zeros(shape = (train_data.shape[0],0))
     new_validation_data = np.zeros(shape = (validation_data.shape[0],0))
@@ -133,13 +136,14 @@ def preprocess():
     summary = np.sum(train_data,axis = 0)
     for i in range(0,feature_number):
         if(summary[i] > 0):
+            index.append(i)
             new_train_data = np.concatenate((new_train_data,train_data[:,[i]]),axis = 1)
             new_validation_data = np.concatenate((new_validation_data,validation_data[:,[i]]),axis = 1)
             new_test_data = np.concatenate((new_test_data,test_data[:,[i]]),axis = 1)
     train_data = new_train_data
     validation_data = new_validation_data
     test_data = new_test_data
-
+    data["index"] = index
     print('preprocess done')
 
     return train_data, train_label, validation_data, validation_label, test_data, test_label
@@ -193,9 +197,9 @@ def nnObjFunction(params, *args):
 
     # Your code here
     row = training_data.shape[0]         #50000
-    column = training_data.shape[1]      #716
-    number_w1 = w1.shape[0]              #50
-    number_w2 = w2.shape[0]              #10
+    #column = training_data.shape[1]      #716
+    #number_w1 = w1.shape[0]              #50
+    #number_w2 = w2.shape[0]              #10
 
     # Feedforward
     from_input = np.concatenate((training_data,np.ones(shape = (row,1))),1) #(50000,717)
@@ -284,7 +288,7 @@ initial_w2 = initializeWeights(n_hidden, n_class)
 initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
 
 # set the regularization hyper-parameter
-lambdaval = 0
+lambdaval = 0.4
 
 args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
 
@@ -302,6 +306,11 @@ nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method=
 # Reshape nnParams from 1D vector into w1 and w2 matrices
 w1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
 w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
+
+data.update({"w1":w1,"w2":w2,"n_hidden":n_hidden,"lambdaval":lambdaval})
+with open('params.pickle', 'wb') as param:
+    pickle.dump(data,param)
+
 
 # Test the computed parameters
 

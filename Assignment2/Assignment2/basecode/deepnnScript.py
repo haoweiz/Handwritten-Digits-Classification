@@ -4,6 +4,7 @@ Comparing single layer MLP with deep MLP (using TensorFlow)
 
 import tensorflow as tf
 import numpy as np
+import time
 import pickle
 
 
@@ -12,8 +13,13 @@ import pickle
 # Remember to connect the final hidden layer to the out_layer
 def create_multilayer_perceptron():
     # Network Parameters
-    n_hidden_1 = 256  # 1st layer number of features
-    n_hidden_2 = 256  # 2nd layer number of features
+    n_hidden_1 = 4  # 1st layer number of features
+    n_hidden_2 = 4  # 2nd layer number of features
+    n_hidden_3 = 4  # 3rd layer number of features
+    n_hidden_4 = 4  # 4th layer number of features
+    n_hidden_5 = 4  # 5th layer number of features
+    n_hidden_6 = 4  # 6th layer number of features
+    n_hidden_7 = 4  # 7th layer number of features
     n_input = 2376  # data input
     n_classes = 2
 
@@ -21,11 +27,21 @@ def create_multilayer_perceptron():
     weights = {
         'h1': tf.Variable(tf.random_normal([n_input, n_hidden_1])),
         'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
-        'out': tf.Variable(tf.random_normal([n_hidden_2, n_classes]))
+        'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3])),
+        'h4': tf.Variable(tf.random_normal([n_hidden_3, n_hidden_4])),
+        'h5': tf.Variable(tf.random_normal([n_hidden_4, n_hidden_5])),
+        'h6': tf.Variable(tf.random_normal([n_hidden_5, n_hidden_6])),
+        'h7': tf.Variable(tf.random_normal([n_hidden_6, n_hidden_7])),
+        'out': tf.Variable(tf.random_normal([n_hidden_7, n_classes]))
     }
     biases = {
         'b1': tf.Variable(tf.random_normal([n_hidden_1])),
         'b2': tf.Variable(tf.random_normal([n_hidden_2])),
+        'b3': tf.Variable(tf.random_normal([n_hidden_3])),
+        'b4': tf.Variable(tf.random_normal([n_hidden_4])),
+        'b5': tf.Variable(tf.random_normal([n_hidden_5])),
+        'b6': tf.Variable(tf.random_normal([n_hidden_6])),
+        'b7': tf.Variable(tf.random_normal([n_hidden_7])),
         'out': tf.Variable(tf.random_normal([n_classes]))
     }
     # tf Graph input
@@ -39,8 +55,23 @@ def create_multilayer_perceptron():
     # Hidden layer with RELU activation
     layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
     layer_2 = tf.nn.relu(layer_2)
+    # Hidden layer with RELU activation
+    layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
+    layer_3 = tf.nn.relu(layer_3)
+    # Hidden layer with RELU activation
+    layer_4 = tf.add(tf.matmul(layer_3, weights['h4']), biases['b4'])
+    layer_4 = tf.nn.relu(layer_4)
+    # Hidden layer with RELU activation
+    layer_5 = tf.add(tf.matmul(layer_4, weights['h5']), biases['b5'])
+    layer_5 = tf.nn.relu(layer_5)
+    # Hidden layer with RELU activation
+    layer_6 = tf.add(tf.matmul(layer_5, weights['h4']), biases['b4'])
+    layer_6 = tf.nn.relu(layer_6)
+    # Hidden layer with RELU activation
+    layer_7 = tf.add(tf.matmul(layer_6, weights['h5']), biases['b5'])
+    layer_7 = tf.nn.relu(layer_7)
     # Output layer with linear activation
-    out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
+    out_layer = tf.matmul(layer_7, weights['out']) + biases['out']
     return out_layer,x,y
 
 # Do not change this
@@ -70,7 +101,7 @@ def preprocess():
 
 # Parameters
 learning_rate = 0.0001
-training_epochs = 50
+training_epochs = 100
 batch_size = 100
 
 # Construct model
@@ -85,6 +116,7 @@ init = tf.global_variables_initializer()
 
 # load data
 train_features, train_labels, valid_features, valid_labels, test_features, test_labels = preprocess()
+start_time = time.time()
 # Launch the graph
 with tf.Session() as sess:
     sess.run(init)
@@ -101,6 +133,8 @@ with tf.Session() as sess:
             # Compute average loss
             avg_cost += c / total_batch
     print("Optimization Finished!")
+    end_time = time.time()
+    print("Time usage: " + str(end_time - start_time))
     correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
     print("Accuracy:", accuracy.eval({x: test_features, y: test_labels}))
